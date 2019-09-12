@@ -56,78 +56,58 @@ function draw() {
   fill(white);
   translate(...origin);
   rect(0, 0, ...size);
-  // const pos1 = drawQuad({ width: 30, height: 50, centerX: -100, centerY: 0 });
-  // fill(purple);
-  // translate(100, 100);
-  // quad(...pos1);
+  fill(purple);
+  drawQuad(0, 0, 10, 10);
+  drawQuad(20, 20, 10, 10, 110);
+  drawQuad(30, 30, 10, 10, undefined, 110);
 }
 
 // Utility functions
 
 function drawQuad(
-  originX,
-  originY,
+  originXPercentage,
+  originYPercentage,
   widthPercentage,
   heightPercentage,
-  centerX = 0,
-  centerY = 0,
-  distortX = 0,
-  distortY = 0,
-  skewX = 0,
-  skewY = 0,
-  angle = 0
+  distortXPercentage, // optional
+  distortYPercentage, // optional
+  skewXPercentage, // optional
+  skewYPercentage, // optional
+  angle // optional
 ) {
   const {
     size: [pmWidth, pmHeight],
-    coordinates: pmCoordinates,
-    origin: pmOrigin
+    coordinates: [pmX1, pmY1, pmX2, pmY2, pmX3, pmY3, pmX4, pmY4],
+    origin: [pmOriginX, pmOriginY]
   } = paintingMetadata;
-
+  const width = pmWidth * (widthPercentage / 100);
+  const height = pmHeight * (heightPercentage / 100);
+  const originX = pmWidth * (originXPercentage / 100);
+  const originY = pmHeight * (originYPercentage / 100);
   const coordinates = {
-    x1: (pmWidth * width) / 100,
-    y1: 0,
-    x2: 0,
-    y2: 0,
-    x3: 0,
-    y3: 0,
-    x4: 0,
-    y4: 0
+    x1: originX,
+    y1: originY,
+    x2: originX + width,
+    y2: originY,
+    x3: originX + width,
+    y3: originY + height,
+    x4: originX,
+    y4: originY + height
   };
-}
-
-// change to percentage
-function xdrawQuad({
-  width,
-  height,
-  centerX = 0,
-  centerY = 0,
-  distortX = 0,
-  distortY = 0,
-  skewX = 0,
-  skewY = 0,
-  angle = 0
-}) {
-  const midW = windowWidth / 2;
-  const midH = windowHeight / 2;
-  const centerXOnTheCanvas = centerX + midW;
-  const centerYOnTheCanvas = centerY + midH;
-  let x1, y1, x2, y2, x3, y3, x4, y4;
-  x1 = x4 = centerXOnTheCanvas - width / 2;
-  x2 = x3 = centerXOnTheCanvas + width / 2;
-  y1 = y2 = centerYOnTheCanvas - height / 2;
-  y3 = y4 = centerYOnTheCanvas + height / 2;
-  if (distortX) {
-    const delta = distortX / 2;
-    x1 = x3 -= delta;
-    x2 = x4 += delta;
+  if (distortXPercentage !== undefined) {
+    const delta = (width * (distortXPercentage / 100)) / 2;
+    coordinates.x1 -= delta;
+    coordinates.x2 += delta;
+    coordinates.x3 -= delta;
+    coordinates.x4 += delta;
   }
-  if (distortY) {
-    const delta = distortY / 2;
-    y1 = y3 -= delta;
-    y4 = y2 += delta;
+  if (distortYPercentage !== undefined) {
+    const delta = (height * (distortYPercentage / 100)) / 2;
+    coordinates.y1 -= delta;
+    coordinates.y1 -= delta;
   }
-  console.log([x1, y1, x2, y2, x3, y3, x4, y4]);
-  return [x1, y1, x2, y2, x3, y3, x4, y4];
+  console.log(coordinates);
+  quad(...Object.values(coordinates));
 }
 
 function setupPaintingMetadata() {
