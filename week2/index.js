@@ -46,8 +46,10 @@ function setup() {
   setupPaintingMetadata();
   background(eighteenPercentGray);
   loadImage("./malevich-football-1915.jpg", img => {
-    image(img, 0, 0);
+    const { size } = paintingMetadata;
+    image(img, 0, 0, ...size);
   });
+  // noLoop();
 }
 
 function draw() {
@@ -64,12 +66,27 @@ function draw() {
   } = malevichsPalette;
   translate(...origin);
   fill(white);
-  rect(0, 0, ...size);
-  fill(purple);
-  drawQuad(0, 0, 10, 10);
-  drawQuad(10, 10, 10, 10, { distortXPercentage: 0, angle: 0 });
-  // drawQuad(10, 10, 10, 10);
-  drawQuad(20, 20, 10, 10);
+  // rect(0, 0, ...size);
+  stroke(0);
+  fill(...purple);
+  drawQuad(38, 1.5, 31, 28, {
+    skewXPercentage: 0,
+    skewYPercentage: -18,
+    angle: 28
+  });
+  fill(...yellow);
+  drawQuad(47, 55.5, 17, 18.5, {
+    distortXPercentage: 24,
+    angle: 5
+  });
+  fill(...blue);
+  drawQuad(15, 70.5, 66, 1.5, { angle: 6.5 });
+  fill(...darkGray, 1);
+  drawQuad(22, 64.5, 18, 11, { angle: 0.5 });
+  fill(...black);
+  drawQuad(32.5, 79, 17, 4.5, { angle: -32 });
+  fill(...red, 1);
+  drawQuad(46, 83, 10.5, 2.5, { angle: -8.5 });
 }
 
 // Utility functions
@@ -119,7 +136,7 @@ function drawQuad(
     calcDistortion(coordinates, width, distortXPercentage, "x");
   }
   if (distortYPercentage) {
-    calcDistortion(coordinates, length, distortYPercentage, "y");
+    calcDistortion(coordinates, width, distortYPercentage, "y");
   }
   if (skewXPercentage) {
     calcSkew(coordinates, width, skewXPercentage, "x");
@@ -131,6 +148,7 @@ function drawQuad(
     calcAngle(coordinates, angle, centerX, centerY);
   }
   quad(...Object.values(coordinates));
+  console.log(coordinates);
 }
 
 function setupPaintingMetadata() {
@@ -162,6 +180,7 @@ function calcDistortion(coordinates, length, distortPercentage, axis) {
 }
 
 function calcSkew(coordinates, length, skewPercentage, axis) {
+  const delta = (length * (skewPercentage / 100)) / 2;
   if (axis === "x") {
     coordinates.x1 -= delta;
     coordinates.x2 -= delta;
