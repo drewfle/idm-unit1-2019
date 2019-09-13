@@ -2,6 +2,7 @@
 // Date: Summer/fall 1915
 // Artist: Kazimir Malevich
 // Image source: https://www.artic.edu/artworks/207293/painterly-realism-of-a-football-player-color-masses-in-the-4th-dimension
+// open -n -a /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --args --user-data-dir="/tmp/chrome_dev_test" --disable-web-security
 
 // rect(x, y, w, h)
 // quad(x1, y1, x2, y2, x3, y3, x4, y4)
@@ -31,6 +32,11 @@ const paintingMetadata = {
 let viewportRatio;
 let paintingRatio;
 let isViewportTooNarrow;
+let img;
+
+function preload() {
+  img = loadImage("./malevich-football-1915.jpg");
+}
 
 function setup() {
   viewportRatio = windowWidth / windowHeight;
@@ -39,6 +45,9 @@ function setup() {
   createCanvas(windowWidth, windowHeight);
   setupPaintingMetadata();
   background(eighteenPercentGray);
+  loadImage("./malevich-football-1915.jpg", img => {
+    image(img, 0, 0);
+  });
 }
 
 function draw() {
@@ -58,8 +67,8 @@ function draw() {
   rect(0, 0, ...size);
   fill(purple);
   drawQuad(0, 0, 10, 10);
-  drawQuad(10, 10, 10, 10, undefined, undefined, undefined, undefined, 10);
-  drawQuad(10, 10, 10, 10);
+  drawQuad(10, 10, 10, 10, { distortXPercentage: 0, angle: 0 });
+  // drawQuad(10, 10, 10, 10);
   drawQuad(20, 20, 10, 10);
 }
 
@@ -70,15 +79,23 @@ function drawQuad(
   originYPercentage,
   widthPercentage,
   heightPercentage,
-  distortXPercentage, // optional
-  distortYPercentage, // optional
-  skewXPercentage, // optional
-  skewYPercentage, // optional
-  angle // optional
+  options = {
+    distortXPercentage: 0,
+    distortYPercentage: 0,
+    skewXPercentage: 0,
+    skewYPercentage: 0,
+    angle: 0
+  }
 ) {
   const {
+    distortXPercentage,
+    distortYPercentage,
+    skewXPercentage,
+    skewYPercentage,
+    angle
+  } = options;
+  const {
     size: [pmWidth, pmHeight],
-    // center: [pmCenterX, pmCenterY],
     coordinates: [pmX1, pmY1, pmX2, pmY2, pmX3, pmY3, pmX4, pmY4],
     origin: [pmOriginX, pmOriginY]
   } = paintingMetadata;
@@ -98,16 +115,16 @@ function drawQuad(
     x4: originX,
     y4: originY + height
   };
-  if (distortXPercentage !== undefined) {
+  if (distortXPercentage) {
     calcDistortion(coordinates, width, distortXPercentage, "x");
   }
-  if (distortYPercentage !== undefined) {
+  if (distortYPercentage) {
     calcDistortion(coordinates, length, distortYPercentage, "y");
   }
-  if (skewXPercentage !== undefined) {
+  if (skewXPercentage) {
     calcSkew(coordinates, width, skewXPercentage, "x");
   }
-  if (skewYPercentage !== undefined) {
+  if (skewYPercentage) {
     calcSkew(coordinates, height, skewYPercentage, "y");
   }
   if (angle) {
