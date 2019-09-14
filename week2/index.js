@@ -29,6 +29,7 @@ const paintingMetadata = {
   coordinates: [], // [x1, y1, x2, y2, x3, y3, x4, y4]
   origin: [] // [x, y]
 };
+const isPositioningShapes = false;
 let viewportRatio;
 let paintingRatio;
 let isViewportTooNarrow;
@@ -45,15 +46,16 @@ function setup() {
   createCanvas(windowWidth, windowHeight);
   setupPaintingMetadata();
   background(eighteenPercentGray);
-  loadImage("./malevich-football-1915.jpg", img => {
-    const { size } = paintingMetadata;
-    image(img, 0, 0, ...size);
-  });
-  // noLoop();
+  if (isPositioningShapes) {
+    loadImage("./malevich-football-1915.jpg", img => {
+      const { size } = paintingMetadata;
+      image(img, 0, 0, ...size);
+    });
+  }
 }
 
 function draw() {
-  const { size, coordinates, origin } = paintingMetadata;
+  const { size, origin } = paintingMetadata;
   const {
     white,
     purple,
@@ -65,8 +67,10 @@ function draw() {
     green
   } = malevichsPalette;
   translate(...origin);
-  fill(white);
-  // rect(0, 0, ...size);
+  if (!isPositioningShapes) {
+    fill(white);
+    rect(0, 0, ...size);
+  }
   stroke(0);
   fill(...purple);
   drawQuad(38, 1.5, 31, 28, {
@@ -90,7 +94,7 @@ function draw() {
   fill(...red);
   drawQuad(54, 86.5, 15, 0.75, { angle: 3 });
   fill(...green);
-  ellipse(56, 88, 3, 3);
+  drawCircleByWidth(59, 89.25, 5);
 }
 
 // Utility functions
@@ -115,15 +119,14 @@ function drawQuad(
     skewYPercentage,
     angle
   } = options;
-  const {
-    size: [pmWidth, pmHeight],
-    coordinates: [pmX1, pmY1, pmX2, pmY2, pmX3, pmY3, pmX4, pmY4],
-    origin: [pmOriginX, pmOriginY]
-  } = paintingMetadata;
-  const width = pmWidth * (widthPercentage / 100);
-  const height = pmHeight * (heightPercentage / 100);
-  const originX = pmWidth * (originXPercentage / 100);
-  const originY = pmHeight * (originYPercentage / 100);
+  const [width, height] = calcSizeByPercentage(
+    widthPercentage,
+    heightPercentage
+  );
+  const [originX, originY] = calcOriginByPercentage(
+    originXPercentage,
+    originYPercentage
+  );
   const centerX = originX + width / 2;
   const centerY = originY + height / 2;
   const coordinates = {
@@ -155,12 +158,25 @@ function drawQuad(
   console.log(coordinates);
 }
 
+function drawCircleByWidth(
+  originXPercentage,
+  originYPercentage,
+  widthPercentage
+) {
+  const [originX, originY] = calcOriginByPercentage(
+    originXPercentage,
+    originYPercentage
+  );
+  const [width] = calcSizeByPercentage(widthPercentage, 0);
+
+  ellipse(originX, originY, width, width);
+}
+
 function setupPaintingMetadata() {
   const [width, height] = getPaintingSize();
   const originX = isViewportTooNarrow ? (windowWidth - width) / 2 : 0;
   const originY = isViewportTooNarrow ? 0 : (windowHeight - height) / 2;
   paintingMetadata.size.push(width, height);
-  // paintingMetadata.center.push(width / 2, height / 2);
   paintingMetadata.coordinates.push(0, 0, width, 0, height, 0, width, height);
   paintingMetadata.origin.push(originX, originY);
 }
@@ -173,6 +189,24 @@ function getPaintingSize() {
     ? windowHeight
     : (windowWidth * 1) / paintingRatio;
   return [width, height];
+}
+
+function calcSizeByPercentage(widthPercentage, heightPercentage) {
+  const {
+    size: [pmWidth, pmHeight]
+  } = paintingMetadata;
+  const width = pmWidth * (widthPercentage / 100);
+  const height = pmHeight * (heightPercentage / 100);
+  return [width, height];
+}
+
+function calcOriginByPercentage(originXPercentage, originYPercentage) {
+  const {
+    size: [pmWidth, pmHeight]
+  } = paintingMetadata;
+  const originX = pmWidth * (originXPercentage / 100);
+  const originY = pmHeight * (originYPercentage / 100);
+  return [originX, originY];
 }
 
 function calcDistortion(coordinates, length, distortPercentage, axis) {
