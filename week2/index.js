@@ -1,17 +1,23 @@
-// Painterly Realism of a Football Player—Color Masses in the 4th Dimension
-// Date: Summer/fall 1915
-// Artist: Kazimir Malevich
-// Image source: https://www.artic.edu/artworks/207293/painterly-realism-of-a-football-player-color-masses-in-the-4th-dimension
-// open -n -a /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --args --user-data-dir="/tmp/chrome_dev_test" --disable-web-security
+/**
+ * Student: Andrew Liu
+ *
+ * About the artwork source ------
+ * Date: Summer/fall 1915
+ * Title:Painterly Realism of a Football Player—Color Masses in the 4th Dimension
+ * Artist: Kazimir Malevich
+ * Image source: https://www.artic.edu/artworks/207293/painterly-realism-of-a-football-player-color-masses-in-the-4th-dimension
+ *
+ * Artwork reproduction steps -------------
+ * Step 1: Retrieve the ratio of painting using the pixel size of the image.
+ * Step 2: Develop functions to make drawing free formed quads and circles easier. In this assignment, I designed function drawQuad and drawCircleByWidth that accept relative size and position percentage to the painting area.
+ * Step 3: Redesign the position calculations to allow the painting area to be positioned in th center of canvas (viewport) regardless of ratio of viewport.
+ * Step 4: Pick the color of each element.
+ * Step 5: Draw the shapes using drawQuad and drawCircleByWidth  on top of the original image.
+ *
+ * Note: This code snippet is heavily written in ES6 syntax that we use a lot in our daytime job.
+ */
 
-// rect(x, y, w, h)
-// quad(x1, y1, x2, y2, x3, y3, x4, y4)
-// circle(x, y, d)
-// rotate(angle, [axis])
-// 8 colors
-// 5-7 shapes
-// 843 x 1350
-
+// Global variables
 const eighteenPercentGray = 124;
 const malevichsPalette = {
   white: [242, 244, 239],
@@ -34,6 +40,8 @@ let viewportRatio;
 let paintingRatio;
 let isViewportTooNarrow;
 let img;
+
+// p5.js special functions
 
 function preload() {
   img = loadImage("./malevich-football-1915.jpg");
@@ -66,12 +74,13 @@ function draw() {
     red,
     green
   } = malevichsPalette;
+  // Move the painting to the center of browser viewport
   translate(...origin);
   if (!isPositioningShapes) {
     fill(white);
     rect(0, 0, ...size);
   }
-  stroke(0);
+  // Draw shapes
   fill(...purple);
   drawQuad(38, 1.5, 31, 28, {
     skewXPercentage: 0,
@@ -99,6 +108,14 @@ function draw() {
 
 // Utility functions
 
+/**
+ * Draws a quad with position and size data that relative to the calculated painting area. Also allows options to distort or skew the quad shape, as well as to rotate it.
+ * @param {number} originXPercentage
+ * @param {number} originYPercentage
+ * @param {number} widthPercentage
+ * @param {number} heightPercentage
+ * @param {Object} options
+ */
 function drawQuad(
   originXPercentage,
   originYPercentage,
@@ -155,9 +172,14 @@ function drawQuad(
     calcAngle(coordinates, angle, centerX, centerY);
   }
   quad(...Object.values(coordinates));
-  console.log(coordinates);
 }
 
+/**
+ * Draws a circle with position and size data that relative to the calculated painting area. Accepts position and size data that relative to the calculated painting area.
+ * @param {number} originXPercentage
+ * @param {number} originYPercentage
+ * @param {number} widthPercentage
+ */
 function drawCircleByWidth(
   originXPercentage,
   originYPercentage,
@@ -172,6 +194,9 @@ function drawCircleByWidth(
   ellipse(originX, originY, width, width);
 }
 
+/**
+ * Calculates painting area size and origin coordinates and store the results in paintingMetadata global variable.
+ */
 function setupPaintingMetadata() {
   const [width, height] = getPaintingSize();
   const originX = isViewportTooNarrow ? (windowWidth - width) / 2 : 0;
@@ -234,7 +259,7 @@ function calcSkew(coordinates, length, skewPercentage, axis) {
 }
 
 /**
- * Wrote custom rotate function, because p5 rotate() doesn't work with quad.
+ * Rotates a quad. Writing a this function because p5 rotate() doesn't work well with quads.
  * Use the formula found at https://www.gamefromscratch.com/post/2012/11/24/GameDev-math-recipes-Rotating-one-point-around-another-point.aspx
  */
 function calcAngle(coordinates, angle, centerX, centerY) {
