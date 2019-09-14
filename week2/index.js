@@ -81,12 +81,16 @@ function draw() {
   });
   fill(...blue);
   drawQuad(15, 70.5, 66, 1.5, { angle: 6.5 });
-  fill(...darkGray, 1);
+  fill(...darkGray);
   drawQuad(22, 64.5, 18, 11, { angle: 0.5 });
   fill(...black);
   drawQuad(32.5, 79, 17, 4.5, { angle: -32 });
-  fill(...red, 1);
+  fill(...red);
   drawQuad(46, 83, 10.5, 2.5, { angle: -8.5 });
+  fill(...red);
+  drawQuad(54, 86.5, 15, 0.75, { angle: 3 });
+  fill(...green);
+  ellipse(56, 88, 3, 3);
 }
 
 // Utility functions
