@@ -3,42 +3,38 @@
  */
 
 const eighteenPercentGray = 124;
+let centerX;
+let centerY;
 let slope;
 
 function setup() {
+  centerX = windowWidth / 2;
+  centerY = windowHeight / 2;
   slope = windowHeight / windowWidth;
   createCanvas(windowWidth, windowHeight);
 }
 
 function draw() {
   background(eighteenPercentGray);
-
-  // while() {
-  // line(x1, y1, x2, y2)
-  // line(x3, y3, x4, y4)
-  // }
-  line(0, 0, 10, 10);
+  keepDrawingLines();
 }
 
-function keepDrawingLines(
-  x1 = 0,
-  y1 = 0,
-  x2 = windowWidth,
-  y2 = windowHeight,
-  x3 = windowWidth,
-  y3 = 0,
-  x4 = 0,
-  y4 = windowHeight
-) {
-  // add stop case
-  // draw first line
-  if (x1 === 0 && y1 === 0 && x2 === windowWidth && y2 === windowHeight) {
-    line(x1, y1, x2, y2);
+function keepDrawingLines(line1 = {}, line2 = {}) {
+  if (!Object.keys(line1).length) {
+    line1.x1 = centerX - centerY * Math.tan(radians(45));
+    line1.y1 = windowHeight;
+    line1.x2 = centerX + centerY * Math.tan(radians(45));
+    line1.y2 = 0;
+    line(...Object.values(line1));
   }
-  if (x3 === windowWidth && y3 === 0 && x4 === 0 && y4 === windowHeight) {
-    line(x3, y3, x4, y4);
+  if (!Object.keys(line2).length) {
+    line2.x1 = centerX - centerY * Math.tan(radians(45));
+    line2.y1 = 0;
+    line2.x2 = centerX + centerY * Math.tan(radians(45));
+    line2.y2 = windowHeight;
+    line(...Object.values(line2));
   }
-  line(x1, y1, x2, y2);
-  line(x3, y3, x4, y4);
-  keepDrawingLines(x1, y1, x2, y2, x3, y3, x4, y4);
+
+  // keepDrawingLines(line1, line2);
+  // line(20, windowHeight, 300, 0);
 }
