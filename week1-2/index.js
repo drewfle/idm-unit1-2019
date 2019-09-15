@@ -20,19 +20,16 @@ function draw() {
   keepDrawingLines();
 }
 function keepDrawingLines(line1 = {}, line2 = {}, i = 1) {
-  console.log(i);
-  console.log(line1);
-  console.log(line2);
   const interval = 30 * i;
   const deltaX = interval / Math.cos(radians(45));
-  if (i > 30) {
+  if (i > 50) {
     return;
   }
   if (
-    line1.x2 < 0 ||
-    line1.x1 > windowWidth ||
-    line2.x1 > windowWidth ||
-    line2.x2 < 0
+    line1.x2 - deltaX < 0 ||
+    line1.x1 + deltaX > windowWidth ||
+    line2.x1 + deltaX > windowWidth ||
+    line2.x2 - deltaX < 0
   ) {
     return;
   }
