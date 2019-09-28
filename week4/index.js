@@ -37,6 +37,7 @@ Are the colors in this example analogous or complementary?
 If you answered "analogous", try re-creating the effect with complementary colors/
 If you answered "complementary", tr re-creating the effect with analogous colors.
 */
+
 function setup() {
   createCanvas(windowWidth, windowHeight);
   colorMode(HSB, 360, 100, 100);
@@ -51,15 +52,18 @@ function draw() {
     drawLeftSmallSquare,
     drawRightSmallSquare
   } = squares;
-  var color1 = color(121, 72, 55);
-  var color2 = color(120, 90, 80);
-  var color3 = color(120, 91, 68);
 
-  drawLeftBackground(color1);
-  drawRightBackground(color3);
-  drawLeftSmallSquare(color2);
-  drawRightSmallSquare(color3);
+  drawLeftBackground(colors.leftBkdg);
+  drawRightBackground(colors.rightBkdgAndSq);
+  drawLeftSmallSquare(colors.leftSq);
+  drawRightSmallSquare(colors.rightBkdgAndSq);
 }
+
+const colors = {
+  leftBkdg: color(121, 72, 55),
+  leftSq: color(120, 90, 80),
+  rightBkdgAndSq: color(120, 91, 68)
+};
 
 /**
  * Instead of using comments, I am trying to use explicit
