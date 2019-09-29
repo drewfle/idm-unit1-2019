@@ -59,6 +59,22 @@ function draw() {
   drawRightSmallSquare(colors.rightBkdgAndSq);
 }
 
+class AlbersShapes {
+  constructor() {
+    this.backgroundColor
+  }
+  draw() {
+  }
+  drawBackground() {
+    fill(colorValue);
+    rect(0, 0, width / 2, height);
+  }
+  drawSmallSquare() {
+    fill(colorValue);
+    rect(width / 4, height / 4, width / 16, width / 16);
+  }
+}
+
 const colors = {
   leftBkdg: color(121, 72, 55),
   leftSq: color(120, 90, 80),
@@ -90,3 +106,4 @@ const squares = {
     rect(width * 0.75, height / 4, width / 16, width / 16);
   }
 };
+
