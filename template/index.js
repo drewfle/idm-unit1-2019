@@ -1,4 +1,4 @@
-let 
+let hasUserClickedOrTouched = false;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -40,8 +40,11 @@ function drawCharacter(
 /**
  * Checks if user mouse cursor or 
  */
-function hasUserClickedOrTouched() {
-  
+function checkhHasUserClickedOrTouched() {
+  if (!hasUserClickedOrTouched && (touches.length || (mouseX === 0 && mouseY === 0)) {
+    hasUserClickedOrTouched = true;
+  }
+  return hasUserClickedOrTouched
 }
 
 function mouseClicked() {
