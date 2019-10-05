@@ -1,40 +1,31 @@
-let hasUserClickedOrTouched = false;
-let img;
-let coordinateRecords = [];
+/**
+ * Student: Andrew Liu
+ */
 
-function preload() {
-  img = loadImage("walk.jpg");
-}
+let x = 0;
+let y = 0;
+let interval = 1;
+let direction = 1;
+let characterColor = "white";
+
 function setup() {
   createCanvas(windowWidth, windowHeight);
   background(0);
-  // image(img, 0, 0, 100, 150);
 }
+
 function draw() {
-  stroke(255);
-  strokeWeight(3);
-  const walker = new NYCWalk(0, 0, 400, 600, "red");
-  point(100, 150);
+  const { walkerWidth, walkerHeight } = calcSize();
+  const { x, y } = calcPosition(walkerWidth);
+  const walker = new NYCWalker(x, y, walkerWidth, walkerHeight, characterColor);
   walker.draw();
 }
 
-// Utility functions ---
-
-function calcPosition() {
-  return [mouseX, mouseY];
-}
-function calcSize() {
-  
-}
-
-// file:///Users/drewfle/Dev/drewfle-github/idm-unit1-2019/week5/index.html
-// open -n -a /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --args --user-data-dir="/tmp/chrome_dev_test" --disable-web-security
-class NYCWalk {
+class NYCWalker {
   constructor(
     positionX,
     positionY,
-    characterWidth, // 1
-    characterHeight, // 2
+    characterWidth,
+    characterHeight,
     characterColor
   ) {
     this.positionX = positionX;
@@ -42,12 +33,14 @@ class NYCWalk {
     this.characterWidth = characterWidth;
     this.characterHeight = characterHeight;
     this.characterColor = characterColor;
-
     this.baseWidth = 100;
     this.baseHeight = 150;
   }
 
   draw() {
+    background(0);
+    strokeWeight(this.characterWidth / 42);
+    stroke(this.characterColor);
     this.drawHead();
     this.drawTorso();
     this.drawLeftArm();
@@ -56,6 +49,10 @@ class NYCWalk {
     this.drawRightLeg();
   }
 
+  /**
+   * Scales and draws walker based on window size.
+   * @param {object} coordinates
+   */
   drawDots(coordinates) {
     coordinates
       .map(([x, y]) => [
@@ -165,22 +162,60 @@ class NYCWalk {
 }
 
 /**
- * Checks if user mouse cursor or
+ * Controls walker moving speed with mouse click or screen tap. Three speeds available.
  */
-function checkHasUserClickedOrTouched() {
-  if (
-    !hasUserClickedOrTouched &&
-    (touches.length || (mouseX === 0 && mouseY === 0))
-  ) {
-    hasUserClickedOrTouched = true;
+function mouseClicked() {
+  if (interval === 100) {
+    interval = 1;
+  } else {
+    interval *= 10;
   }
-  return hasUserClickedOrTouched;
 }
 
-function mouseClicked() {
-  coordinateRecords.push([mouseX, mouseY]);
-}
+/**
+ * Controls walker color with double click with mouse.
+ */
 function doubleClicked() {
-  coordinateRecords = coordinateRecords.slice(0, coordinateRecords.length - 1);
-  console.log(JSON.stringify(coordinateRecords));
+  if (characterColor === "white") {
+    characterColor = "red";
+  } else {
+    characterColor = "white";
+  }
+}
+
+// Utility functions ---------------------------
+
+/**
+ * Calculates walker positions so that our walker can walk back and forth as well
+ * as staying in the middle in the window vertically.
+ * @param {number} walkerWidth
+ */
+function calcPosition(walkerWidth) {
+  if (x + walkerWidth > windowWidth) {
+    direction = -1;
+  } else if (x < 0) {
+    direction = 1;
+  }
+  x += direction * interval;
+  if (windowHeight >= windowWidth) {
+    y = windowHeight / 4;
+  }
+  return { x, y };
+}
+
+/**
+ * Calculates walker size. If the window is in landscape, just fit the walker within
+ * the window height. If the window is in portrait, then the walker only fits 2/3 of
+ * the window height.
+ */
+function calcSize() {
+  let walkerWidth, walkerHeight;
+  if (windowHeight >= windowWidth) {
+    walkerHeight = windowHeight / 2;
+    walkerWidth = walkerHeight / 1.5;
+  } else {
+    walkerHeight = windowHeight;
+    walkerWidth = walkerHeight / 1.5;
+  }
+  return { walkerWidth, walkerHeight };
 }
