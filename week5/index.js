@@ -7,17 +7,24 @@ function preload() {
 }
 function setup() {
   createCanvas(windowWidth, windowHeight);
-  background(255);
-  image(img, 0, 0, 100, 150);
+  background(0);
+  // image(img, 0, 0, 100, 150);
 }
 function draw() {
-  stroke("red");
+  stroke(255);
   strokeWeight(3);
-  // point(mouseX, mouseY);
-  // line(0, 0, 100, 100);
-  const walker = new NYCWalk(0, 0, 100, 150, "red");
+  const walker = new NYCWalk(0, 0, 400, 600, "red");
   point(100, 150);
   walker.draw();
+}
+
+// Utility functions ---
+
+function calcPosition() {
+  return [mouseX, mouseY];
+}
+function calcSize() {
+  
 }
 
 // file:///Users/drewfle/Dev/drewfle-github/idm-unit1-2019/week5/index.html
