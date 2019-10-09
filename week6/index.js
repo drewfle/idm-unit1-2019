@@ -1,21 +1,31 @@
 function setup() {
   createCanvas(windowWidth, windowHeight);
+  drawSquares();
 }
 
 function draw() {
-  drawSquares();
+  // drawSquares();
+  rotate( frameCount % PI)
   console.log(mouseX, mouseY);
 }
 
 function drawSquares() {
   const w = width / 77;
   const h = height / 77;
-  let x1 = width / 5;
-  let y1 = height / 5;
-  // let x2 = width * 3/ 4;
-  // let y3 = height * 3/ 4;
+  let x = width / 6;
+  let y = height / 6;
   fill("red");
-  rect(x1, y1, w, h);
-  console.log(size);
-  console.log(x1, y1, x2, y2);
+  for (let i = 0; i < 5; i++) {
+    push();
+    translate(x * i, 0);
+    rect(x, y, w, h);
+    for (let j = 0; j < 5; j++) {
+      push();
+      translate(0, y * j);
+      rect(x, y, w, h);
+      pop();
+    }
+    pop()
+  }
 }
+
