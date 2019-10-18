@@ -9,12 +9,12 @@ function setup() {
 
 function draw() {
   const mix = new ColorMix(
-    9,
-    9,
+    13,
+    13,
     width / 50,
     height / 50,
-    color(240, 100, 100, 0.1),
-    color(330, 100, 100, 0.05)
+    color(270, 100, 100, 0.1),
+    color(345, 100, 100, 0.05)
   );
   mix.draw();
 }
@@ -43,8 +43,9 @@ class ColorMix {
    * are specific to ColorMix
    */
   static setup() {
-    frameRate(120);
     colorMode(HSB);
+    background(color(128, 50, 100));
+    frameRate(90);
     noStroke();
   }
 
@@ -73,7 +74,7 @@ class ColorMix {
       for (let j = 0; j < this.rowSize; j++) {
         push();
         translate(0, y * j);
-        this._drawRect(x, y, i + j / total);
+        this._drawRect(x, y, (i + j) / total);
         pop();
       }
       pop();
