@@ -1,83 +1,150 @@
 /**
- * Global variables ----------------------------------
+ * STUDENT: Andrew Liu
+ * ^: just like when I was in art college, we knew each other and talk about
+ * our work as real people.
+ *
+ * FOREWORDS: Instead of drawing multiple shapes alone the lissajous curves, I
+ * decided to only draw a circle at each side of the trajectory. The reason was
+ * I found the dark lines and circles were pleasant enough. If it were multiple
+ * shapes (even by just making different ovals using sin/cos values), it would
+ * give me a very busy feeling.
  */
-let lissajousCurves;
-let lissajousSatellite;
 
 /**
- * p5.js hooks ----------------------------------
+ * ### Global variables ###
+ *
+ * Trying to reduce the number of global variables.
+ */
+let lissajousLines;
+let lissajousSatellites;
+
+/**
+ * ### p5.js hooks ###
  */
 function setup() {
+  // Global configurations
   createCanvas(windowWidth, windowHeight);
-  background(222);
-  lissajousCurves.setup();
+  colorMode(HSB); // Default to HSBA 360, 100, 100, 1
+  background(color(0, 0, 85));
+
+  // Shape-specific configurations
+  lissajousLines.setup({
+    strokeColor: color(0, 0, 0, 0.01),
+    waveLengthX: 100.0,
+    waveLengthY: 1000.0
+  });
+  lissajousSatellites.setup({ circleDiameterBase: 80 });
 }
 function draw() {
-  lissajousCurves.draw();
-  const { x, y } = lissajousCurves;
-  lissajousSatellite.draw(x, y);
+  translate(width / 2, height / 2);
+  lissajousLines.draw();
+  const { x1, y1, x2, y2, pointCount } = lissajousLines;
+  lissajousSatellites.draw({ x1, y1, x2, y2, pointCount });
+  // stopLoop hss to be at the end of each drawing cycle to prevent
+  // an extra drawing loop that draws one more circle at each side.
+  lissajousLines.stopLoop();
 }
 
-// Encapsulates the variables and functions needed for drawing
-// lissajous curves
-lissajousCurves = {
-  amplitudeX: 0,
-  amplitudeY: 0,
-  waveLengthX: 100.0,
-  waveLengthY: 1000.0,
+/**
+ * ### Shape drawing objects ###
+ *
+ * In this section, I was trying to experiment with a pattern that stores
+ * shape-specific configurations (i.e. setup) and actions (i.e. draw) into
+ * each shape drawing object. I also tried to encapsulates the variables and
+ * functions that are only needed for the shape drawing objects.
+ */
+
+/**
+ * Lissajous line drawing object
+ */
+
+lissajousLines = {
+  // Explicitly layouts object variables we need here
+  strokeColor: undefined,
+  amplitudeX: undefined,
+  amplitudeY: undefined,
+  waveLengthX: undefined,
+  waveLengthY: undefined,
   pointCount: 0,
-  x: 0,
-  y: 0,
+  x1: 0,
+  y1: 0,
+  x2: 0,
+  y2: 0,
   /**
-   * Initializes the variables and setups specifically required for
-   * drawing lissajous
+   * Shape drawing specific setup function
    */
-  setup() {
+  setup({ strokeColor, waveLengthX, waveLengthY }) {
+    // Initializes object variables
+    this.strokeColor = strokeColor;
+    this.waveLengthX = waveLengthX;
+    this.waveLengthY = waveLengthY;
     // Sets to viewport size to fill in for any screen ratio.
     this.amplitudeX = windowWidth / 2.333;
     this.amplitudeY = windowHeight / 2.333;
     // Styling
-    noFill();
     strokeWeight(1);
-    stroke(100);
   },
+  /**
+   * Draws lines that connect both ends of the Lissajous curve trajectory.
+   */
   draw() {
-    translate(width / 2, height / 2);
-    if (this.pointCount > 1000) {
-      noLoop();
-    }
-    this.drawCurve();
-  },
-  drawCurve() {
-    // let x, y;
     beginShape();
     for (var i = 0; i < this.pointCount; i++) {
       const angleX = (i / this.waveLengthX) * TWO_PI;
       const angleY = (i / this.waveLengthY) * TWO_PI;
-      this.x = sin(angleX) * this.amplitudeX;
-      this.y = sin(angleY) * this.amplitudeY;
-      vertex(this.x, this.y);
+      this.x1 = sin(angleX) * this.amplitudeX;
+      this.y1 = sin(angleY) * this.amplitudeY;
+      this.x2 = -this.x1;
+      this.y2 = -this.y1;
+      // TODO: callbacks
+      stroke(this.strokeColor);
+      noFill();
+      vertex(this.x1, this.y1);
+      vertex(this.x2, this.y2);
     }
     endShape();
     this.pointCount++;
+  },
+  /**
+   * Stops the curves when two circles overlap. Only need
+   * pointCount to be larger than a threshold. In current
+   * calculation, larger than 3 works, but it is fine to pick
+   * slightly larger number.
+   */
+  stopLoop() {
+    if (
+      this.pointCount > 42 &&
+      Math.round(this.x1) === Math.round(this.x2) &&
+      Math.round(this.y1) === Math.round(this.y2)
+    ) {
+      noLoop();
+    }
   }
 };
 
-lissajousSatellite = {
-  draw(_x, _y) {
-    this.amplitude = 10;
-    this.waveLength = 10;
-    // const angle = radians(frameCount);
-    // const x = sin(angle) * this.amplitude + _x;
-    // const y = cos(angle) * this.amplitude + _y;
-    ellipse(_x, _y, this.waveLength);
-    // beginShape();
-    // for (var i = 0; i < 10; i++) {
-    //   const angle = (i / this.waveLength) * TWO_PI;
-    //   const x = sin(angle) * this.amplitude + _x;
-    //   const y = cos(angle) * this.amplitude + _y;
-    //   vertex(x, y);
-    // }
-    // endShape();
+/**
+ * Lissajous circle satellite drawing object
+ */
+lissajousSatellites = {
+  circleDiameter: undefined,
+  /**
+   * Shape drawing specific setup function
+   */
+  setup({ circleDiameterBase }) {
+    this.circleDiameter =
+      windowWidth > windowHeight
+        ? windowWidth / circleDiameterBase
+        : windowHeight / circleDiameterBase;
+  },
+  /**
+   * Draws circles at each end of the Lissajous lines. The circles are filled
+   * with colors that compensate each other.
+   */
+  draw({ x1, y1, x2, y2, pointCount }) {
+    const angle = (pointCount / 3000) * TWO_PI;
+    fill(color(cos(angle) * 360, 25, 75));
+    ellipse(x1, y1, this.circleDiameter);
+    fill(color(sin(angle) * 360, 25, 75));
+    ellipse(x2, y2, this.circleDiameter);
   }
 };
