@@ -99,13 +99,13 @@ class StingCircleMatrix {
         if (this.matrix[row] === undefined) {
           this.matrix[row] = [];
         }
-        const x = this.offsetX + this.gapX / 2;
-        const y = this.offsetY + this.gapY / 2;
+        const baseX = this.offsetX + this.gapX / 3;
+        const baseY = this.offsetY + this.gapY / 3;
         this.matrix[row][col] = new StingCircle({
           circleColor: colors.white,
           stingColor: colors.white,
-          circleX: x + row * this.gapX,
-          circleY: y + col * this.gapY,
+          circleX: baseX + row * this.gapX,
+          circleY: baseY + col * this.gapY,
           circleRadius: this.circleRadius,
           stingLength: 1,
           stingDirection: 1
@@ -116,6 +116,10 @@ class StingCircleMatrix {
   render() {
     this.matrix.forEach(row => row.forEach(col => col.render()));
   }
+}
+
+class StingMatrixControls {
+  
 }
 
 /**
