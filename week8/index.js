@@ -1,212 +1,169 @@
-// class Particle {
-//   constructor(position) {
-//     this.speed = 20;
-//     this.name = "astroid";
-//     this.color = color(0, 0, 255);
-//     this.position = position;
-//     this.lifespan = 255;
-//   }
-//   bounce() {
-//     if (this.position > height || this.position < 0) {
-//       this.speed *= -1;
-//     }
-//     this.position += this.speed;
-//     this.lifespan--;
-//   }
-// }
+/**
+ * Student: Andrew likes trifle -> drewfle
+ *
+ */
 
-// var particles = [];
-// function setup() {
-//   createCanvas(400, 400);
-//   textAlign(CENTER);
-// }
+/**
+ * Custom classes -------------------------------------------------------------
+ */
 
-// function draw() {
-//   background(255);
-//   translate(width / 2, 0);
-//   noStroke();
-//   for (var i = 0; i < particles.length; i++) {
-//     if (particles[i].lifespan <= 0) {
-//       particles.splice(i, 1);
-//     } else {
-//       fill(
-//         red(particles[i].color),
-//         green(particles[i].color),
-//         blue(particles[i].color),
-//         particles[i].lifespan
-//       );
-//       ellipse(0, particles[i].position, 100, 100);
-//       text(particles[i].name, 0, particles[i]);
-//       particles[i].bounce();
-//     }
-//   }
-// }
-
-// function mousePressed() {
-//   particles.push(new Particle(mouseY));
-// }
-
-class Flock {
-  constructor() {
-    this.boids = [];
-  }
-  run() {
-    for (let i = 0; i < this.boids.length; i++) {
-      this.boids[i].run(this.boids);
-    }
-  }
-  addBoid(b) {
-    this.boids.push(b);
+/**
+ * The Util class. Since we're instructed to explore ES6 class syntax, we can group utility
+ * functions inside a Util class as static methods.
+ */
+class Util {
+  /**
+   * ES6 static keyword: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes/static
+   * ES6 getter syntax: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/get
+   */
+  static get maxViewportSize() {
+    return Math.max(windowWidth, windowHeight);
   }
 }
 
-class Boid {
-  constructor(x, y) {
-    this.acceleration = createVector(0, 0);
-    this.velocity = createVector(random(-1, 1), random(-1, 1));
+/**
+ * The base particle class.
+ */
+class Particle {
+  // About ES6 default parameters: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Default_parameters
+  constructor(x, y, acceleration = 1) {
+    // Member variables
+    this.baseSpeed = 2;
+    this.acceleration = acceleration;
+
+    // The required class member variables needed for this assignment.
+    this.size = random(1, Util.maxViewportSize / 77);
+    this.color = color(random(["yellow", "cyan"])); // random also takes an array
     this.position = createVector(x, y);
-    this.r = 3.0;
-    this.maxSpeed = 3;
-    this.maxForce = 0.05;
+    this.speed = this.initSpeed();
   }
-  run(boids) {
-    this.flock(boids);
-    this.update();
-    this.borders();
-    this.render();
+
+  /**
+   * Initializes or resets speed.
+   */
+  initSpeed() {
+    return createVector(
+      random(-this.baseSpeed, this.baseSpeed),
+      random(-this.baseSpeed, this.baseSpeed)
+    );
   }
-  applyForce(force) {
-    this.acceleration.add(force);
-  }
-  flock(boids) {
-    let sep = this.separate(boids);
-    let ali = this.align(boids);
-    let coh = this.cohesion(boids);
-    sep.mult(1.5);
-    ali.mult(1.0);
-    coh.mult(1.0);
-    this.applyForce(sep);
-    this.applyForce(ali);
-    this.applyForce(coh);
-  }
-  update() {
-    this.velocity.add(this.acceleration);
-    this.velocity.limit(this.maxSpeed);
-    this.position.add(this.velocity);
-    this.acceleration.mult(0);
-  }
-  seek(target) {
-    let desired = p5.Vector.sub(target, this.position);
-    desired.normalize();
-    desired.mult(this.maxSpeed);
-    let steer = p5.Vector.sub(desired, this.velocity);
-    steer.limit(this.maxForce);
-    return steer;
-  }
+
+  /**
+   * Renders a particle.
+   */
   render() {
-    let theta = this.velocity.heading() + radians(90);
-    fill(127);
-    stroke(200);
-    push();
-    translate(this.position.x, this.position.y);
-    rotate(theta);
-    beginShape();
-    vertex(0, -this.r * 2);
-    vertex(-this.r, this.r * 2);
-    vertex(this.r, this.r * 2);
-    endShape(CLOSE);
-    pop();
+    fill(this.color);
+    ellipse(this.position.x, this.position.y, this.size);
   }
-  borders() {
-    if (this.position.x < -this.r) this.position.x = width + this.r;
-    if (this.position.y < -this.r) this.position.y = height + this.r;
-    if (this.position.x > width + this.r) this.position.x = -this.r;
-    if (this.position.y > height + this.r) this.position.y = -this.r;
+
+  /**
+   * Accelerates a particle.
+   */
+  accelerate() {
+    this.position.add(this.speed);
   }
-  separate(boids) {
-    let desiredSeparation = 25.0;
-    let steer = createVector(0, 0);
-    let count = 0;
-    for (let i = 0; i < boids.length; i++) {
-      let d = p5.Vector.dist(this.position, boids[i].position);
-      if (d > 0 && d < desiredSeparation) {
-        let diff = p5.Vector.sub(this.position, boids[i].position);
-        diff.normalize();
-        diff.div(d);
-        steer.add(diff);
-        count++;
-      }
-    }
-    if (count > 0) {
-      steer.div(count);
-    }
-    if (steer.mag() > 0) {
-      steer.normalize();
-      steer.mult(this.maxSpeed);
-      steer.sub(this.velocity);
-      steer.limit(this.maxForce);
-    }
-    return steer;
+}
+
+/**
+ * A particle class that knows how to run away.
+ * More about inheritance and the extends keyword: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes/extends
+ */
+class RunawayParticle extends Particle {
+  // Omitted constructor. Derived class constructor calls super by default: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes/constructor
+
+  /**
+   * Creates runaway effects.
+   */
+  runaway() {
+    this.pleaseDontGo();
+    this.feelsTired();
+    this.accelerate();
   }
-  align(boids) {
-    let neighborDist = 50;
-    let sum = createVector(0, 0);
-    let count = 0;
-    for (let i = 0; i < boids.length; i++) {
-      let d = p5.Vector.dist(this.position, boids[i].position);
-      if (d > 0 && d < neighborDist) {
-        sum.add(boids[i].velocity);
-        count++;
-      }
-    }
-    if (count > 0) {
-      sum.div(count);
-      sum.normalize();
-      sum.mult(this.maxSpeed);
-      let steer = p5.Vector.sub(sum, this.velocity);
-      steer.limit(this.maxForce);
-      return steer;
-    } else {
-      return createVector(0, 0);
+
+  /**
+   * Don't really want them to go away.
+   */
+  pleaseDontGo() {
+    if (
+      this.position.x > windowWidth - translateOffset.x ||
+      this.position.x < -translateOffset.x ||
+      this.position.y > windowHeight - translateOffset.y ||
+      this.position.y < -translateOffset.y
+    ) {
+      this.color = color(random(["yellow", "cyan"]));
+      this.position = createVector(0, 0);
+      this.speed.mult(this.acceleration);
     }
   }
-  cohesion(boids) {
-    let neighborDist = 50;
-    let sum = createVector(0, 0);
-    let count = 0;
-    for (let i = 0; i < boids.length; i++) {
-      let d = p5.Vector.dist(this.position, boids[i].position);
-      if (d > 0 && d < neighborDist) {
-        sum.add(boids[i].position);
-        count++;
-      }
-    }
-    if (count > 0) {
-      sum.div(count);
-      return this.seek(sum);
-    } else {
-      return createVector(0, 0);
+
+  /**
+   * If a runaway particle runs too fast, it gets too tired so it slows down.
+   */
+  feelsTired() {
+    const threshold = 500;
+    if (this.speed.x > threshold || this.speed.y > threshold) {
+      this.color = color(random(["red", "blue"]));
+      this.speed = this.initSpeed();
     }
   }
 }
 
-let flock;
-
-function setup() {
-  createCanvas(640, 360);
-
-  flock = new Flock();
-  for (let i = 0; i < 100; i++) {
-    let b = new Boid(width / 2, height / 2);
-    flock.addBoid(b);
+/**
+ * A class maintains a pool of particles.
+ */
+class ParticleSystem {
+  constructor() {
+    this.particles = [];
   }
+
+  /**
+   * Encapsulates ParticleSystem-specific configuration to be called in the
+   * global setup hook.
+   * @param {number} particleNumber
+   */
+  setup(particleNumber) {
+    for (let i = 0; i < particleNumber; i++) {
+      this.particles.push(new RunawayParticle(0, 0, random(1, 100)));
+    }
+  }
+
+  /**
+   * Encapsulates ParticleSystem-specific routine to be called in the global
+   * draw hook.
+   */
+  draw() {
+    translate(translateOffset.x, translateOffset.y);
+    background("darkblue");
+    noStroke();
+    this.particles.forEach(particle => {
+      particle.render();
+      particle.runaway();
+    });
+  }
+}
+
+/**
+ * Global constants and variables --------------------------------------------
+ */
+const translateOffset = {
+  x: undefined,
+  y: undefined
+};
+let particleSystem;
+
+/**
+ * P5.js global hooks ---------------------------------------------------------
+ */
+function setup() {
+  createCanvas(windowWidth, windowHeight);
+  translateOffset.x = windowWidth / 2;
+  translateOffset.y = windowHeight / 2;
+
+  const particleNumbers = Util.maxViewportSize / 3;
+  particleSystem = new ParticleSystem();
+  particleSystem.setup(particleNumbers);
 }
 
 function draw() {
-  background(51);
-  flock.run();
-}
-
-function mouseDragged() {
-  flock.addBoid(new Boid(mouseX, mouseY));
+  particleSystem.draw();
 }
