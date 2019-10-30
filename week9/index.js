@@ -119,9 +119,9 @@ class StingCircleMatrix {
     );
     this.controls.stingLength.position(windowWidth / 100, windowHeight / 100);
     this.controls.stingLength.style("width", `${windowWidth / 5}px`);
-    // this.controls.color = createSlider(0, 0, 0);
+    // this.controls.color = createColorPicker();
     // this.controls.speed = createSlider(0, 0, 0);
-    // this.controls.freeze = createRadio();
+    // this.controls.freeze = createCheckbox();
   }
   /**
    * Initializes sting circles in the matrix
