@@ -40,25 +40,27 @@ class StingCircle {
     this.stingBaseX2 = this.calcCirclePointX(50);
     this.stingBaseY2 = this.calcCirclePointY(50);
   }
-  render() {
+  render(distance) {
     stroke(0);
     circle(this.circleX, this.circleY, this.circleDiameter);
-    this.renderSting(this.circleDiameter);
+    this.renderSting(distance);
   }
   /**
    * Renders sting-shaped triangle.
    * @param {number} distance
-   * @param {number} direction
    */
-  renderSting(distance = this.circleRadius, direction = 1) {
-    const x = this.calcCirclePointX(45 * direction, distance);
-    const y = this.calcCirclePointY(45 * direction, distance);
+  renderSting(distance) {
+    // Sting apex has a base position on the circle.
+    const baseX = this.calcCirclePointX(45);
+    const baseY = this.calcCirclePointY(45);
+    const x = baseX + distance;
+    const y = baseY - distance;
     beginShape();
     // Order matters here cuz we'll only draw two lines.
     vertex(this.stingBaseX1, this.stingBaseY1);
     vertex(x, y);
     vertex(this.stingBaseX2, this.stingBaseY2);
-    endShape(); // No close to retain circle arc shape.
+    endShape(); // No close for retaining circle arc shape.
   }
   /**
    * Calculates coordinate x on a circle.
@@ -85,22 +87,53 @@ class StingCircleMatrix {
   constructor(rows, columns, offsetX = 0, offsetY = 0) {
     this.rows = rows;
     this.columns = columns;
-    this.gapX = windowWidth / this.rows;
-    this.gapY = windowHeight / this.columns;
+    this.gapX = windowWidth / (this.rows + 1);
+    this.gapY = windowHeight / (this.columns + 1);
     this.offsetX = offsetX;
     this.offsetY = offsetY;
-    this.circleRadius = Util.maxViewportSize / 30;
+    this.circleRadius = (this.gapX + this.gapY) / 5;
+    this.circleDiameter = this.circleRadius * 2;
     this.matrix = [];
-    this.init();
+    this.angle = 0;
+    this.freeze = false;
+    this.speed = 200;
+    this.controls = {};
+    this.initControls();
+    this.initStingCircles();
   }
-  init() {
+  /**
+   * Initializes controls for the assignment parameters
+   */
+  initControls() {
+    // createSlider(min, max, [value], [step])
+    this.controls.stingLengthText = createP("sting length");
+    this.controls.stingLengthText.position(
+      windowWidth / 100,
+      windowHeight / 100
+    );
+    this.controls.stingLengthText.style("color", "red");
+    this.controls.stingLength = createSlider(
+      0,
+      this.circleDiameter,
+      this.circleRadius
+    );
+    this.controls.stingLength.position(windowWidth / 100, windowHeight / 100);
+    this.controls.stingLength.style("width", `${windowWidth / 5}px`);
+    // this.controls.color = createSlider(0, 0, 0);
+    // this.controls.speed = createSlider(0, 0, 0);
+    // this.controls.freeze = createRadio();
+  }
+  /**
+   * Initializes sting circles in the matrix
+   */
+  initStingCircles() {
     for (let row = 0; row < this.rows; row++) {
       for (let col = 0; col < this.columns; col++) {
         if (this.matrix[row] === undefined) {
           this.matrix[row] = [];
         }
-        const baseX = this.offsetX + this.gapX / 3;
-        const baseY = this.offsetY + this.gapY / 3;
+        const baseX = this.offsetX + this.gapX;
+        const baseY = this.offsetY + this.gapY;
         this.matrix[row][col] = new StingCircle({
           circleColor: colors.white,
           stingColor: colors.white,
@@ -113,28 +146,41 @@ class StingCircleMatrix {
       }
     }
   }
+  // render(distance = this.circleRadius) {
   render() {
-    this.matrix.forEach(row => row.forEach(col => col.render()));
+    const distance = this.controls.stingLength.value();
+    // Not calculating distance in StingCircle to improve performance.
+    // Only updates angle when freeze is false
+    if (!this.freeze) {
+      this.angle = (frameCount / this.speed) * TWO_PI;
+    }
+    const dist = distance * cos(this.angle);
+    this.matrix.forEach(row => row.forEach(col => col.render(dist)));
+  }
+  toggleFreeze() {
+    this.freeze = !this.freeze;
   }
 }
 
-class StingMatrixControls {
-  
-}
+// class Controls {
+//   constructor(stingLengthMin,stingLengthMax) {
+//     this.stingLength = createSlider(stingLengthMin, stingLengthMac, 0);
+//   }
+// }
 
 /**
  * P5 hooks
  */
 function setup() {
   createCanvas(windowWidth, windowHeight);
-  background(255);
   colorMode(HSB);
 
   colors.white = "white";
-  const rows = Math.floor(windowWidth / 100);
-  const columns = Math.floor(windowHeight / 100);
+  const rows = Math.floor(windowWidth / 120);
+  const columns = Math.floor(windowHeight / 120);
   stingCircleMatrix = new StingCircleMatrix(rows, columns);
 }
 function draw() {
+  background(255);
   stingCircleMatrix.render();
 }
