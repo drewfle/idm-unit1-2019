@@ -17,6 +17,9 @@ class Util {
   }
 }
 
+/**
+ * The base visual element in the assignment.
+ */
 class StingCircle {
   constructor({
     circleColor,
@@ -106,12 +109,20 @@ class StingCircleMatrix {
    */
   initControls() {
     // createSlider(min, max, [value], [step])
+    const baseX = 100;
+    const baseY = 100;
+    
+    const labelX = baseX;
+    const labelY = baseY;
+    const labelWidth = 100
     this.controls.stingLengthText = createP("sting length");
     this.controls.stingLengthText.position(
-      windowWidth / 100,
-      windowHeight / 100
+      labelX,
+      labelY
     );
-    this.controls.stingLengthText.style("color", "red");
+  this.controls.stingLengthText.style("width", `${labelWidth}px`);
+  this.controls.stingLengthText.style("color", "red");
+  
     this.controls.stingLength = createSlider(
       0,
       this.circleDiameter,
@@ -119,6 +130,7 @@ class StingCircleMatrix {
     );
     this.controls.stingLength.position(windowWidth / 100, windowHeight / 100);
     this.controls.stingLength.style("width", `${windowWidth / 5}px`);
+    
     // this.controls.color = createColorPicker();
     // this.controls.speed = createSlider(0, 0, 0);
     // this.controls.freeze = createCheckbox();
@@ -162,11 +174,12 @@ class StingCircleMatrix {
   }
 }
 
-// class Controls {
-//   constructor(stingLengthMin,stingLengthMax) {
-//     this.stingLength = createSlider(stingLengthMin, stingLengthMac, 0);
-//   }
-// }
+/*
+class StingCircleMatrixControls {
+  constructor(stingLengthMin,stingLengthMax) {
+  }
+}
+*/
 
 /**
  * P5 hooks
