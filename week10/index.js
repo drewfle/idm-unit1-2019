@@ -33,15 +33,19 @@ function setup() {
   const lexicon = new RiLexicon();
   const foo = x.join(" ");
   const randomWord = lexicon.randomWord("jj");
-  const words = RiTa.tokenize("Got me looking so crazy right now.");
+  const rhymeWord = RiTa.rhymes("cool");
+  const randomRhyme = Math.floor(Math.random() * rhymeWord.length);
+  const words = RiTa.tokenize(foo);
+  console.log(words);
   const words2 = RiTa.getPhonemes("Got me looking so crazy right now.");
   const partsOfSpeech = RiTa.getPosTags(words);
-  const stresses = RiTa.getStresses(lyricLine);
-  const wordCount = RiTa.getWordCount(lyricLine);
+  const stresses = RiTa.getStresses(words);
+  const wordCount = RiTa.getWordCount(words);
   const sentences = RiTa.splitSentences(foo);
   for (var i = 0; i < sentences.length; i++) {
-    // var wordTwoWidth = textWidth(wordTwo);
-    console.log(sentences[i]);
+    const wordWidth = textWidth(words[i]);
+    // console.log(wordWidth);
+    // console.log(sentences[i]);
   }
   // var words = RiTa.tokenize("Got me looking so crazy right now.");
   // for (var i = 0; i < words.length; i++) {
