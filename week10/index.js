@@ -15,57 +15,71 @@
 /**
  * Global variables
  */
-let raven;
+const allPoses = ["jj", "jjr", "jjs", "nn", "nns"];
+const lexicon = new RiLexicon();
+const ravenLinesLive = [];
+let ravenClauses;
+let theRaven = "";
 
 /**
  * P5.js hooks
  */
 function preload() {
-  raven = loadStrings(
+  ravenClauses = loadStrings(
     "https://openprocessing-usercontent.s3.amazonaws.com/files/user188449/visual786008/h156f8d5d04b9aec8eb5d44dca97cb9ee/the-raven-and-other-poems.txt"
   );
 }
-function setup() {
-  createCanvas(400, 400);
-  background(255);
-  fill(0);
-  textSize(48);
-  
-  const lexicon = new RiLexicon();
-  const ravenTokens = RiTa.tokenize(raven.join(' '));
-  ravenTokens.forEach((t, i) => {
-    if (RiTa.containsWord(t)) {
-    
-      if 
-      const randomWord = lexicon.randomWord("jj");
-      ravenTokens[i] = 
-    }
-  })
-  /*
-  const lexicon = new RiLexicon();
-  const foo = x.join(" ");
-  const randomWord = lexicon.randomWord("jj");
-  const rhymeWord = RiTa.rhymes("cool");
-  const randomRhyme = Math.floor(Math.random() * rhymeWord.length);
-  const words = RiTa.tokenize(foo);
-  console.log(words);
-  const words2 = RiTa.getPhonemes("Got me looking so crazy right now.");
-  const partsOfSpeech = RiTa.getPosTags(words);
-  const stresses = RiTa.getStresses(words);
-  const wordCount = RiTa.getWordCount(words);
-  const sentences = RiTa.splitSentences(foo);
-  for (var i = 0; i < sentences.length; i++) {
-    const wordWidth = textWidth(words[i]);
-    // console.log(wordWidth);
-    // console.log(sentences[i]);
-  }
-  */
-  // var words = RiTa.tokenize("Got me looking so crazy right now.");
-  // for (var i = 0; i < words.length; i++) {
-  //   text(words[i], 50, i * 48 + 48);
-  // }
-}
-function draw() {}
 
-function test() {
-} 
+function setup() {
+  createCanvas(windowWidth, windowHeight);
+  fill(0);
+  textSize(12);
+  frameRate(10);
+  ravenClauses = ravenClauses.slice(0, 10);
+}
+
+function draw() {
+  if (!ravenClauses.length) {
+    noLoop();
+  }
+  background(255);
+  const ravenClause = ravenClauses.shift();
+  if (ravenClause) {
+    const ravenTokens = RiTa.tokenize(ravenClause);
+    rewordClause(ravenTokens);
+    const newRavenClause = RiTa.untokenize(ravenTokens);
+    const isBeginClause = newRavenClause[0] === newRavenClause[0].toUpperCase();
+    theRaven += isBeginClause ? `\n${newRavenClause}` : newRavenClause;
+  } else {
+    theRaven += "\n";
+  }
+  text(theRaven, 10, 10, width - 20, height - 20);
+}
+
+function rewordClause(clause) {
+  const ravenTokens = clause;
+  ravenTokens.forEach((token, i) => {
+    const tokenPos = RiTa.getPosTags(token)[0];
+    const posIndex = allPoses.indexOf(tokenPos);
+    if (posIndex === -1) {
+      return;
+    }
+    const isClauseEnd =
+      i + 1 < ravenTokens.length
+        ? RiTa.isPunctuation(ravenTokens[i + 1])
+        : false;
+    const rhymeWord = RiTa.rhymes(token);
+    if (isClauseEnd) {
+      const rhymeWords = RiTa.rhymes(token);
+      const samePosRhymeWord = rhymeWords.find(
+        rhymeWord =>
+          rhymeWord !== token && RiTa.getPosTags(rhymeWord) === tokenPos
+      );
+      const randomWord = RiTa.randomWord(tokenPos);
+      ravenTokens[i] = samePosRhymeWord ? samePosRhymeWord : randomWord;
+    } else {
+      const randomWord = RiTa.randomWord(tokenPos);
+      ravenTokens[i] = randomWord;
+    }
+  });
+}
