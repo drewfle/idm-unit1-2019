@@ -15,13 +15,13 @@
 /**
  * Global variables
  */
-let x;
+let raven;
 
 /**
  * P5.js hooks
  */
 function preload() {
-  x = loadStrings(
+  raven = loadStrings(
     "https://openprocessing-usercontent.s3.amazonaws.com/files/user188449/visual786008/h156f8d5d04b9aec8eb5d44dca97cb9ee/the-raven-and-other-poems.txt"
   );
 }
@@ -30,6 +30,18 @@ function setup() {
   background(255);
   fill(0);
   textSize(48);
+  
+  const lexicon = new RiLexicon();
+  const ravenTokens = RiTa.tokenize(raven.join(' '));
+  ravenTokens.forEach((t, i) => {
+    if (RiTa.containsWord(t)) {
+    
+      if 
+      const randomWord = lexicon.randomWord("jj");
+      ravenTokens[i] = 
+    }
+  })
+  /*
   const lexicon = new RiLexicon();
   const foo = x.join(" ");
   const randomWord = lexicon.randomWord("jj");
@@ -47,9 +59,13 @@ function setup() {
     // console.log(wordWidth);
     // console.log(sentences[i]);
   }
+  */
   // var words = RiTa.tokenize("Got me looking so crazy right now.");
   // for (var i = 0; i < words.length; i++) {
   //   text(words[i], 50, i * 48 + 48);
   // }
 }
 function draw() {}
+
+function test() {
+} 
