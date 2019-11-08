@@ -34,7 +34,6 @@ function setup() {
   createCanvas(windowWidth, windowHeight);
   fill(0);
   textSize(12);
-  frameRate(10);
   ravenClauses = ravenClauses.slice(0, 10);
 }
 
