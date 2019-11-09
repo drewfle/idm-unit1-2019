@@ -1,6 +1,6 @@
 /**
- * Renders reworded clauses one by one in the P5.js draw loop. Please scroll the
- * screen when the reworded text is approaching the bottom of browser.
+ * Renders reworded clauses one by one with rhymes retained in the P5.js draw loop.
+ * Please scroll the screen when the reworded text is approaching the bottom of browser.
  */
 
 /**
