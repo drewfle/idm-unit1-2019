@@ -81,6 +81,8 @@ class Reword {
             rhymeWord !== token && RiTa.getPosTags(rhymeWord) === tokenPos
         );
         const randomWord = lexicon.randomWord(tokenPos);
+        // Replace with a word with the same rhyme if it is available in the list
+        // returned from rhymes()
         clauseTokens[i] = samePosRhymeWord ? samePosRhymeWord : randomWord;
       } else {
         const randomWord = lexicon.randomWord(tokenPos);
