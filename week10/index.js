@@ -8,7 +8,6 @@
  */
 const adjectivePoses = ["jj", "jjr", "jjs"];
 const nounPoses = ["nn", "nns"];
-const openprocessingHeaderHeight = 700;
 let lexicon;
 let rewordRaven;
 let ravenClauses;
@@ -23,6 +22,9 @@ class Reword {
     this.posesToReplace = posesToReplace;
     this.rewordedClauses = [];
     this.currentClauseIndex = 0;
+    this.wrapper = createDiv()
+      .position(windowWidth / 100, windowHeight / 100)
+      .style("background", "grey");
   }
   /**
    * Renders and reword clauses incrementally.
@@ -31,14 +33,13 @@ class Reword {
     // rewordClause() is an expensive operation, thus we only need to call it
     // for one clause at a time.
     if (this.currentClauseIndex < this.oldClauses.length) {
-      const rewordedClause = this.rewordClause(
-        this.oldClauses[this.currentClauseIndex++]
-      );
-      this.rewordedClauses.push(rewordedClause);
+      const oldClause = this.oldClauses[this.currentClauseIndex++];
+      if (!oldClause) {
+        return;
+      }
+      const rewordedClause = this.rewordClause(oldClause);
+      this.wrapper.child(rewordedClause);
     }
-    this.rewordedClauses.forEach((clause, i) => {
-      text(clause, 10, openprocessingHeaderHeight + i * 15);
-    });
   }
   /**
    * Rewords a clause with correct formatting or changes it to a new line
@@ -47,15 +48,27 @@ class Reword {
    * @param {string} clause
    */
   rewordClause(clause) {
-    if (clause !== "") {
-      const clauseTokens = RiTa.tokenize(clause);
-      this.rewordClauseTokens(clauseTokens);
-      const rewordedClause = RiTa.untokenize(clauseTokens);
-      const isBeginClause = clause[0] === clause[0].toUpperCase();
-      return isBeginClause ? `\n${rewordedClause}` : rewordedClause;
-    } else {
-      return "\n";
-    }
+    const clauseTokens = RiTa.tokenize(clause);
+    this.rewordClauseTokens(clauseTokens);
+    const rewordedClause = this.untokenize(clauseTokens);
+    return rewordedClause;
+  }
+  /**
+   * Reimplements Rita.untokenize() so we can concat mixed token
+   * types
+   * @param {string|P5.Element} tokens
+   */
+  untokenize(tokens) {
+    const clauseP = createP();
+    tokens.forEach(token => {
+      if (typeof token === "string") {
+        const plainSpan = createSpan(`${token} `).style("color", "lightblue");
+        clauseP.child(plainSpan);
+      } else {
+        clauseP.child(token);
+      }
+    });
+    return clauseP;
   }
   /**
    * Conditionally rewords clause tokens so that we can retain rhymes.
@@ -83,12 +96,19 @@ class Reword {
         const randomWord = lexicon.randomWord(tokenPos);
         // Replace with a word with the same rhyme if it can be found in the list
         // returned from rhymes()
-        clauseTokens[i] = samePosRhymeWord ? samePosRhymeWord : randomWord;
+        clauseTokens[i] = this.highlight(
+          samePosRhymeWord ? samePosRhymeWord : randomWord
+        );
       } else {
         const randomWord = lexicon.randomWord(tokenPos);
-        clauseTokens[i] = randomWord;
+        clauseTokens[i] = this.highlight(randomWord);
       }
     });
+  }
+  highlight(word) {
+    return createSpan(`${word} `)
+      .style("color", "magenta")
+      .style("background", "lime");
   }
 }
 
@@ -104,17 +124,11 @@ function preload() {
 function setup() {
   // Note on the canvas height, we need to allocated enough space to fit the
   // entire text to be rendered
-  createCanvas(
-    windowWidth,
-    openprocessingHeaderHeight + (ravenClauses.length + 1) * 15
-  );
-  fill(0);
-  textSize(12);
+  createCanvas(windowWidth, windowHeight);
   lexicon = new RiLexicon();
   rewordRaven = new Reword(ravenClauses, [...adjectivePoses, ...nounPoses]);
 }
 
 function draw() {
-  background(255);
   rewordRaven.renderClausesIncrementally();
 }
