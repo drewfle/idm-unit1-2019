@@ -1,0 +1,47 @@
+[
+  {
+    "date": "11/11/19",
+    "leftHome": "8:32",
+    "arrivedOffice": "9:03",
+    "leftOffice": "18:15",
+    "arrivedHome": "20:26",
+    "didGoToTheGym": "true",
+    "didWorkFromHome": "false"
+  },
+  {
+    "date": "11/12/19",
+    "leftHome": "8:37",
+    "arrivedOffice": "9:12",
+    "leftOffice": "18:47",
+    "arrivedHome": "19:41",
+    "didGoToTheGym": "true",
+    "didWorkFromHome": "false"
+  },
+  {
+    "date": "11/13/19",
+    "leftHome": "8:27",
+    "arrivedOffice": "8:50",
+    "leftOffice": "18:56",
+    "arrivedHome": "19:20",
+    "didGoToTheGym": "true",
+    "didWorkFromHome": "false"
+  },
+  {
+    "date": "11/14/19",
+    "leftHome": "8:30",
+    "arrivedOffice": "9:02",
+    "leftOffice": "18:31",
+    "arrivedHome": "18:57",
+    "didGoToTheGym": "true",
+    "didWorkFromHome": "false"
+  },
+  {
+    "date": "11/15/19",
+    "leftHome": "",
+    "arrivedOffice": "9:00",
+    "leftOffice": "18:00",
+    "arrivedHome": "",
+    "didGoToTheGym": "false",
+    "didWorkFromHome": "true"
+  }
+]
