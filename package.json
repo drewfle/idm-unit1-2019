@@ -6,7 +6,8 @@
   "dependencies": {
     "d3": "^5.12.0",
     "p5": "^0.10.2",
-    "rita": "^1.3.94"
+    "rita": "^1.3.94",
+    "p5.play": "git+https://github.com/drewfle/p5.play.git"
   },
   "devDependencies": {},
   "scripts": {
