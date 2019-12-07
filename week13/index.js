@@ -18,28 +18,21 @@ const bodyPartsBaseUrl = "assets";
 
 const bodyPartsVisuals = [
   "arm.jpg",
-  "leg.jpg",
-  "arm.jpg",
-  "leg.jpg",
-  "arm.jpg",
-  "leg.jpg",
-  "arm.jpg",
-  "leg.jpg",
-  "arm.jpg",
-  "arm.jpg",
-  "leg.jpg",
-  "arm.jpg",
-  "leg.jpg",
-  "leg.jpg",
-  "arm.jpg"
-  // "leg.jpg"
+  "leg.jpg"
+  // ...new Array(20).fill("arm.jpg"),
+  // ...new Array(20).fill("leg.jpg")
 ].map(img => ({
+  id: undefined,
   url: `${bodyPartsBaseUrl}/${img}`,
   isProcessing: false,
   bodyPart: undefined,
   img: undefined,
-  canvas: undefined
+  canvas: undefined,
+  width: 0,
+  height: 0
 }));
+
+const clonedBodyParts = [];
 
 const bodyPartsSounds = {
   nose: "nose",
@@ -66,7 +59,7 @@ let input;
 function setup() {
   // createCanvas(windowWidth, windowHeight);
   noCanvas();
-  initializeBodyParts();
+  initializeBodyParts(bodyPartsVisuals);
   // TODO: move the file input into a banner on the bottom
   input = createFileInput(handleFile);
   input.position(0, 0);
@@ -83,11 +76,44 @@ async function draw() {
   (async () => {
     await loadAndPredict();
     // makeSound();
-    const wrapThreshold = 5;
+    // TODO: input to change threshold
+    const wrapThreshold = 6;
     const amplification = 1.33;
     const size = windowHeight / wrapThreshold;
     const extendedWidth = windowWidth + size;
-    bodyPartsVisuals.forEach(({ canvas }, i) => {
+    // TODO: algo to fill all screen
+    (function fillWindowWithMoreBodyParts() {
+      const maxCols = Math.floor(windowWidth / size);
+      const maxBodyParts = wrapThreshold * maxCols;
+      const { length: currentBodyParts } = bodyPartsVisuals;
+      const { length: currentClonedBodyParts } = clonedBodyParts;
+      const bodyPartsDiff =
+        maxBodyParts - currentBodyParts - currentClonedBodyParts;
+      console.log("maxBodyParts", maxBodyParts);
+      console.log(bodyPartsDiff);
+      if (bodyPartsDiff > 0) {
+        for (let i = 0; i < bodyPartsDiff; i++) {
+          const oldBodyPart = bodyPartsVisuals[i % currentBodyParts];
+          const newBodyPart = {};
+          const oldCanvas = oldBodyPart.canvas.elt;
+          const uuid = `${Math.random()}`.slice(2);
+          foo(newBodyPart, oldBodyPart.width, oldBodyPart.height);
+          const oldCanvasContext = oldCanvas.getContext("2d");
+          const newCanvasContext = newBodyPart.canvas.elt.getContext("2d");
+          const oldCanvasImageData = oldCanvasContext.getImageData(
+            0,
+            0,
+            oldBodyPart.width,
+            oldBodyPart.height
+          );
+          newCanvasContext.putImageData(oldCanvasImageData, 0, 0);
+          clonedBodyParts.push(newBodyPart);
+        }
+      }
+    })();
+    const allBodyParts = [...bodyPartsVisuals, ...clonedBodyParts];
+    console.log(allBodyParts);
+    allBodyParts.forEach(({ canvas }, i) => {
       const move =
         (frameCount + size * Math.floor(i / wrapThreshold)) % windowWidth;
       const posX = windowWidth - move - size;
@@ -99,7 +125,7 @@ async function draw() {
         .style("height", `${size * amplification}px`);
     });
   })();
-  // noLoop();
+  noLoop();
 }
 
 function makeSound() {}
@@ -155,14 +181,15 @@ function handleFile(file) {
   bodyPartsVisuals.push(bodyPart);
 }
 
-function initializeBodyParts() {
-  bodyPartsVisuals.forEach(bodyPart => {
+function initializeBodyParts(bodyPartsArray) {
+  bodyPartsArray.forEach(bodyPart => {
     createBodyPart(bodyPart);
   });
 }
 
 function createBodyPart(bodyPart, fileData = undefined) {
   const uuid = `${Math.random()}`.slice(2);
+  bodyPart.id = uuid;
   // Creates a unique id string like 5519497453702618, without this from
   // the second browser load and onwards the console will output:
   // Uncaught (in promise) DOMException: Failed to execute 'texImage2D' on 'WebGL2RenderingContext': Tainted canvases may not be loaded.
@@ -174,15 +201,21 @@ function createBodyPart(bodyPart, fileData = undefined) {
     // using the existing one
     .id(uuid)
     .hide();
-  // display: none; width: 0px; height: 0px; position: absolute; left: 0px; top: 0px;
-  // TODO: use remove() to gc
-  bodyPart.canvas = createGraphics(bodyPart.img.width, bodyPart.img.height)
-    .id(`canvas-${uuid}`)
+  // TODO: use remove() to gc if too many images
+  foo(bodyPart, bodyPart.img.width, bodyPart.img.height);
+  return bodyPart;
+}
+
+function foo(bodyPart, bodyPartWidth, bodyPartHeight) {
+  bodyPart.canvas = createGraphics(bodyPartWidth, bodyPartHeight)
+    .id(`canvas-${bodyPart.id}`)
     .position(0, 0)
-    .show()
-    .style("width", "")
-    .style("height", "")
+    .show() // resets P5 default values to avoid canvas not shown
+    .style("width", "") // resets P5 default values to avoid canvas not shown
+    .style("height", "") // resets P5 default values to avoid canvas not shown
     .style("opacity", "0.75");
+  bodyPart.width = bodyPartWidth;
+  bodyPart.height = bodyPartHeight;
 }
 
 /**
